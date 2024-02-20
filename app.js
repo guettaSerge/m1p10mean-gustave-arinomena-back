@@ -12,13 +12,14 @@ connectDb();
 
 var app = express();
 app.use(bodyParser.json());
-const port =process.env.PORT||5000;
 app.use(express.json())
 app.use(errorHandler);
+app.use(cors());
 
 //assign routes
 routes(app)
 
+const port =process.env.PORT||5000;
 app.listen(port,()=>{
     console.log(`server: listening on ${port}`);
 });

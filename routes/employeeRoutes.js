@@ -1,7 +1,7 @@
 const express=require("express");
 const router= express.Router();
 const {getemployee,createemployee,updateemployee,deleteemployee, getOneemployee}= require("../controllers/employeeController");
-const validateToken = require('../middleware/validateTokenHandler');
+const validateToken = require('../middleware/auth');
 
 router.route("/").get(validateToken,getemployee)
 router.route('/').post(validateToken,createemployee)
