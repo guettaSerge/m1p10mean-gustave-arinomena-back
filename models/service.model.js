@@ -4,7 +4,8 @@ var sch= mongoose.Schema({
     nom: { type: String },
     description: { type: String },
     prix: { type: Number },
-    duree: { type: Number }
+    duree: { type: Number },
+    img:{type: String}
 });
 
 var Services = mongoose.model('Services',sch);

@@ -3,23 +3,24 @@ const bcrypt=require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const asyncHandler=require('express-async-handler')
+const limit_page=process.env.LIMIT_PAGE_SIZE;
 var router = express.Router();
 var ObjectId = require('mongoose').Types.ObjectId;
-var { Services } = require('../models/service');
+var { Services } = require('../models/service.model');
+var{ServicesClass}=require('../models/service.class.model');
 router.use(cookieParser());
-
+const GenRepository = require('../commons/database/class/gen-repository');
+const servicesRepository = new GenRepository(ServicesClass);
+const serviceService=require('../service/service.service');
+const {assign} = require('../commons/database/methods/gen-reflect');
 // lien a utiliser pour le test sur postman: localhost:3000/service/
 
 //@desc register user
 //@route Post /api/services/
 //@access public
 const getServices = asyncHandler(async (req, res) =>{
-    try {
-      const docs = await Services.find();
-      res.send(docs);
-    } catch (err) {
-      console.log("Une erreur dans la récupération des données du service :" + JSON.stringify(err, undefined, 2));
-    }
+  const data = await serviceService.findCoreServices(req.query);
+  res.json(data);
 });
 
 
@@ -50,19 +51,9 @@ const getServicesByID = asyncHandler(async (req, res) =>{
 //@route Post /api/services
 //@access private
 const createServices = asyncHandler(async (req, res) =>{
-  try {
-    const service = new Services({
-      nom: req.body.nom,
-      descrption: req.body.descrption,
-      prix: req.body.prix,
-      duree: req.body.duree
-    });
-    await service.save();
-    res.send(service);
-  } catch (err) {
-    console.error('Error in Service Save:', err);
-    res.status(500).send("Erreur lors de l'insertion du Service" +  + JSON.stringify(err, undefined, 2));
-  }
+  const body = assign(ServicesClass, req.body,'createSchemaDto');
+  await servicesRepository.insert([body]);
+  res.json({message: "nouveau service inserée"});
 });
 
 //@desc  update services

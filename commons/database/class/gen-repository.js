@@ -20,7 +20,9 @@ class GenRepository {
         //const toInsert  = entities.map(elmt=> assign(this.entityClass, elmt, schemaName));
         try{
             const toInsert = entities;
-            const collection = getConnection().collection(this.entityClass.collection);
+            console.log(this.entityClass.collection);
+            const db = getConnection();
+            const collection=db.collection(this.entityClass.collection);
             return await collection.insertMany(toInsert);    
         }catch(e){
             let message = "Erreur lors de l'insertion";

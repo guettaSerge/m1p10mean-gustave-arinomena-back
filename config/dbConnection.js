@@ -1,13 +1,25 @@
-const mongoose = require('mongoose');
+"use strict";
 
-const connectDb= async () =>{
-    try{
-        const connect=await mongoose.connect(process.env.MONGODB_CONNECTION_URL);
-        console.log("Connected to MongoDB :",connect.connection.host);
-    }
-    catch(err){
-        console.log(err);
-    }
+const { MongoClient } = require("mongodb");
+const env= require('../commons/functions/get-env')
+
+var client;
+function getConnection(){
+    const dbName =  process.env.MONGO_DBNAME;
+    if(!client){
+        const url = process.env.MONGO_URL;
+        const options =  { useNewUrlParser: true, useUnifiedTopology: true };
+        client = new MongoClient(url, options);
+        
+    }   
+   
+    return client.db(dbName);
+}
+const transactionOptions = {
+    readConcern: { level: 'snapshot' },
+    writeConcern: { w: 'majority' },
+    readPreference: 'primary'
 };
 
-module.exports = connectDb;
+module.exports.transactionOptions = transactionOptions;
+module.exports.getConnection = getConnection;

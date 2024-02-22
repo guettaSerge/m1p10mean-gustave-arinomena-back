@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const asyncHandler=require('express-async-handler')
 var router = express.Router();
 var ObjectId = require('mongoose').Types.ObjectId;
-var { Reservations } = require('../models/resa');
+var { Reservations } = require('../models/reservation.model');
 router.use(cookieParser());
 
 
@@ -52,8 +52,9 @@ const getreservationsByID = asyncHandler(async (req, res) =>{
 //@access private
 const createreservations = asyncHandler(async (req, res) =>{
   try {
+    let iduser=req.user._id
     const reservation = new Reservations({
-      idRdv: req.body.idRdv,
+      idUser:iduser,
       idService: req.body.idService,
       idEmploye: req.body.idEmploye,
       dateHeure: req.body.dateHeure,

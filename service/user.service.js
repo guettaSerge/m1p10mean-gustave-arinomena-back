@@ -1,9 +1,42 @@
-const User= require('../models/user.model');
-const bcrypt=require('bcrypt');
+const { ObjectID } = require("bson");
+const GenRepository = require("../commons/database/class/gen-repository");
+const md5 = require("md5");
+const User= require('../models/user.class.model');
 const CustomError = require('../errors/custom-error');
-
+const userRepository = new GenRepository(User); 
 module.exports = class UserService {
-    
+    static async findByGmail(email){
+        const filter = [{
+            column: 'email',
+            type: 'string',
+            value: email,
+            comparator: '='
+        }];
+        const result = await userRepository.find({filter});
+        return result.data;
+    }
+    static async findUserByEmailAndPassword(data){
+        const users = await userRepository.find({
+            excludeFields: ['password'],
+            filter: [
+                {
+                    column: 'email',
+                    type: 'string',
+                    value: data.email,
+                    comparator: '='
+                },
+                {
+                    column: 'password',
+                    type: 'string',
+                    value: md5(data.password),
+                    comparator: '='
+                },
+            ]
+        }) 
+        if(users.data.length  === 0) return null;
+        return users.data[0];
+    }
+
     static buildSigninMail(newUser){
         let societyName = "K-OJAO";
         let mail = {

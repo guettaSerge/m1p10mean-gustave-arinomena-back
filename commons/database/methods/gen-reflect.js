@@ -7,8 +7,7 @@ function assign(targetClass, obj, schemaName='schema'){
     const isArray = Array.isArray(obj)
     if(!isArray) obj = [obj];
    const newInstances = []
-    obj.forEach(element => {
-        
+    obj.forEach(element => {   
         const newInstance = {};
         Object.keys(targetClass[schemaName]).map(key=>{ 
             if(targetClass[schemaName][key].classConstructor){
@@ -19,7 +18,7 @@ function assign(targetClass, obj, schemaName='schema'){
             else if(element[key] !== undefined)
                 newInstance[key] = element[key]
         })
-        if(!newInstance._id) newInstance._id = ObjectId();
+        if(!newInstance._id) newInstance._id = new ObjectId();
         if(typeof newInstance._id === 'string') newInstance._id = new ObjectId(newInstance._id)
         newInstances.push(newInstance);
     });

@@ -4,51 +4,45 @@ const UserService= require('../service/user.service');
 const bcrypt=require('bcrypt');
 const jwt = require('jsonwebtoken');
 const CustomError = require('../errors/custom-error');
-
+const UserClass=require('../models/user.class.model');
+const { assign } = require('../commons/database/methods/gen-reflect');
+const GenRepository = require('../commons/database/class/gen-repository');
+const md5 = require('md5');
+const userRepository = new GenRepository(UserClass);
 //@desc register user
 //@route Post /api/users/register
 //@access public
 const registerUser = asyncHandler(async (req, res) =>{
-    try{
-        const {name,surname,email,password,confirmPassword}=req.body;
-        const user=await User.findOne({email});
-        if(user){
-            throw new CustomError("User already exists");
+        const newUser= assign(UserClass, req.body,"createSchemaDto");
+        if(req.body.confirmPassword !== newUser.password)
+        throw new CustomError('Les 2 mots de passes sont differentes')
+        newUser.password=md5(newUser.password)
+        email = newUser.email
+        const user=await UserService.findByGmail(email);
+        if(user.length > 0) {
+           throw new CustomError("User already exists");
         }
-        //hash password
-        const hashedPassword=await bcrypt.hash(password,10);
-        const newUser=await User.create({name,surname,email,role:1,confirmPassword,password:hashedPassword});
+        newUser.roleId = 1;
+        await userRepository.insert([newUser]);
+
+        
         if(newUser){
             res.status(201).json({"message":"utilisateur ajouté avec succès"});
         }
         else{
             throw new CustomError("user not created",401);
         }
-    }
-    catch(e){
-        message=e.message;
-        res.status(e.statusCode?e.statusCode:500 ).json({message: message});
-    }
+   
 });
 
 //@desc login user
 //@route Post /api/users/login
 //@access public
 const loginUser = asyncHandler(async (req, res) =>{
-    try{
-        const {email,password}=req.body;
-    if(!email){
-        res.status(400);
-        throw new Error("l'email est obligatiore");
-    }
-    if(!password){
-        res.status(400);
-        throw new Error("le mot de passe est obligatoire");
-    }
-
-    const user = await User.findOne({email});
+    const user = await UserService.findUserByEmailAndPassword(req.body);
+    if(!user) throw new CustomError('Email ou mot de passe invalide')
     //compare password a,d hashpassword 
-    if(user &&(await bcrypt.compare(password,user.password))){
+
         const accessToken= jwt.sign({
             user:{
                 username: user.username,
@@ -61,17 +55,7 @@ const loginUser = asyncHandler(async (req, res) =>{
         {expiresIn: process.env.ACCESS_TOOKEN_DURATION}
         );
         res.status(200).json({accessToken});
-    }
-    else{
-        res.status(401);
-        throw new Error("Invalid email or password");
-    }
-
-    }
-    catch(e){
-        message=e.message;
-        res.status(e.statusCode?e.statusCode:500 ).json({message: message});
-    }
+  
 });
 
 //@desc current user
