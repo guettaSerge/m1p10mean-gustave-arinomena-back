@@ -1,18 +1,16 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const {assign} = require('../commons/database/methods/gen-reflect');
 const cookieParser = require('cookie-parser');
 const asyncHandler=require('express-async-handler')
 var router = express.Router();
 const { ObjectId } = require("bson");
-const Reservations=require('../models/reservation.class.model');
+const PreferenceEmloyee=require('../models/PreferenceEmloyee.class.model');
 const user = require("../models/user.class.model");
 const GenRepository = require('../commons/database/class/gen-repository');
-const reservationsService = require('../service/reservations.services')
-const serviceService=require('../service/service.service');
-const {assign} = require('../commons/database/methods/gen-reflect');
+const utilisateurService = require('../service/user.service')
+const preferenceEmployeeService=require('../service/PreferenceEmployee.services');
 const CustomError = require('../errors/custom-error');
-const reservationsRepository = new GenRepository(Reservations);
+const preferenceEmployeeRepository = new GenRepository(PreferenceEmloyee);
 const userRepository = new GenRepository(user) 
 router.use(cookieParser());
 
@@ -22,13 +20,9 @@ router.use(cookieParser());
 //@desc register user
 //@route get /api/reservations/
 //@access public
-const getreservations = asyncHandler(async (req, res) =>{
-  try {
-    const docs = await Reservations.find();
-    res.send(docs);
-  } catch (err) {
-    console.log("Une erreur dans la récupération des données de la reservation :" + JSON.stringify(err, undefined, 2));
-  }
+const getpreferenceEmployee = asyncHandler(async (req, res) =>{
+  const data=await preferenceEmployeeService.findCoreReservationbyfilter();
+  return  res.json(data);
 });
 
 
@@ -54,65 +48,26 @@ const getreservationsByID = asyncHandler(async (req, res) =>{
   }
 });
     
-//insertion reservations
+//insertion preference
 //@desc create reservation
 //@route Post /api/reservations
 //@access private
-const createreservations = asyncHandler(async (req, res) =>{
-  const newReservation = assign(Reservations, req.body,'demanderdvShemaDto');
-  newReservation.client=req.user
-  newReservation.service=serviceService.findCoreServiceById(newReservation.service.id);
-  newReservation.prix=newReservation.service.prix;
-  await reservationsRepository.insert([body]);
-  res.json({message: "nouveau service inserée"});
-});
-
-//insertion reservations
-//@desc create reservation
-//@route Post /api/reservations/generate
-//@access private
-const generatereservations = asyncHandler(async (req, res) =>{
-  const newReservation = assign(Reservations, req.body,'demanderdvShemaDto');
-  //test du valeur de données
-  if(!newReservation.service_id) throw new CustomError("vous devez choisir une service",401);
-  if(!newReservation.daterdv) throw new CustomError("la date du rendez-vous est obligatoire",401);
-  
-  selectedservices= await serviceService.findCoreServiceById(newReservation.service_id);
-  console.log(selectedservices);
-  newReservation.client=req.user
-  newReservation.client_id=req.user._id;
-  newReservation.service=selectedservices;
-  newReservation.prix=selectedservices.prix;
-  newReservation.status=0;
-  //suppression des informations inutile dans la base de données
-
-  await reservationsRepository.insert([newReservation]);
+const createPreferenceEmployee = asyncHandler(async (req, res) =>{
+  const preferenceEmployee = assign(PreferenceEmloyee, req.body,'demandepreferenceEmployeeShemaDto');
+  //verification que les valeurs existent
+  if(!preferenceEmployee.employee_id) throw new CustomError("l'employee est obligatoire",401);
+  if(!preferenceEmployee.note) throw new CustomError("la note est obligatoire",401);
+  //verification du valeur de la note 
+  if(preferenceEmployee.note<0||preferenceEmployee.note>5) throw new CustomError("la note doit etre entre 0 et 5",401);
+  selectedEmployee=await utilisateurService.findById(preferenceEmployee.employee_id);
+  preferenceEmployee.datepref=Date.now()
+  preferenceEmployee.employee=selectedEmployee
+  preferenceEmployee.client=req.user;
+  preferenceEmployee.client_id=req.user._id;
+  await preferenceEmployeeRepository.insert([preferenceEmployee]);
   res.json({message: "nouveau reservation inséré avec succès"});
 });
 
-//insertion reservations
-//@desc create reservation
-//@route Post /api/reservations/assigner/:id
-//@access private
-const assignereservations = asyncHandler(async (req, res) =>{
-  console.log(req.params)
-  const reservation = await reservationsService.findCoreReservationById(req.params.id);
-  const newReservation = assign(Reservations, req.body,'assignerRdvShemaDto');
-  //test du valeur de données
-  if(!newReservation.employee_id) throw new CustomError("vous devez assigner ceci à un employée",401);
-  if(!newReservation.comission) throw new CustomError("la  comission est obligatoire",401);
-  if(newReservation.comission<0||newReservation.comission>100) throw new CustomError("la valeur de la commission n'est pas correcte",401);
-  
-  selected_emp= await userRepository.findById(newReservation.employee_id);
-  newReservation.client=req.user
-  newReservation.employee=selected_emp;
-  newReservation.status=2;
-  newReservation._id=req.params.id;
-  //suppression des informations inutile dans la base de données
-
-  await reservationsRepository.update(newReservation);
-  res.json({message: "nouveau reservation inséré avec succès"});
-});
 
 //insertion reservations
 //@desc create reservation
@@ -198,4 +153,4 @@ const deletereservations =  asyncHandler(async (req, res) =>{
 });
 
 
-module.exports={liste_mes_clients,liste_mes_reservations,assignereservations,generatereservations,getreservations,getreservationsByID,createreservations,updatereservations,deletereservations}
+module.exports={createPreferenceEmployee,getpreferenceEmployee}

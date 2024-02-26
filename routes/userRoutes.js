@@ -7,6 +7,6 @@ const router=express.Router();
 
 router.post('/register',createRouteCallback(registerUser));
 router.post('/login',createRouteCallback(loginUser));
-router.get('/current',createAuth([2]),createRouteCallback(currentUser));
+router.get('/current',createAuth([1]),createRouteCallback(currentUser));
 
 module.exports=router;

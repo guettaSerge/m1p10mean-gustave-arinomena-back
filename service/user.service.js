@@ -1,10 +1,23 @@
-const { ObjectID } = require("bson");
+const { ObjectId } = require("bson");
 const GenRepository = require("../commons/database/class/gen-repository");
 const md5 = require("md5");
 const User= require('../models/user.class.model');
 const CustomError = require('../errors/custom-error');
 const userRepository = new GenRepository(User); 
 module.exports = class UserService {
+    
+    static async findById(_id){
+        const filter = [{
+            column: '_id',
+            type: 'string',
+            value:new ObjectId(_id),
+            comparator: '='
+        }];
+        const result = await userRepository.find({filter});
+        if(result.data.length === 0) 
+            throw new CustomError('Aucun Utilisateur correspondante')    
+        return result.data[0];
+    }
     static async findByGmail(email){
         const filter = [{
             column: 'email',
@@ -17,7 +30,7 @@ module.exports = class UserService {
     }
     static async findUserByEmailAndPassword(data){
         const users = await userRepository.find({
-            excludeFields: ['password'],
+            excludeFields: ['password','confirmPassword'],
             filter: [
                 {
                     column: 'email',

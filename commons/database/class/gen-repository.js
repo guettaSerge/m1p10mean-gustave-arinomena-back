@@ -1,4 +1,4 @@
-const { ObjectID } = require("bson");
+const { ObjectId } = require("bson");
 const { getConnection } = require("../../../config/dbConnection"); 
 const CustomError = require("../../../errors/custom-error");
 const { assign } = require("../methods/gen-reflect");
@@ -88,7 +88,7 @@ class GenRepository {
         const filter = [{
             column: '_id',
             type: 'string',
-            value: ObjectID(_id),
+            value: new ObjectId(_id),
             comparator: '='
         }];
         const result = await this.find({filter});
@@ -113,13 +113,14 @@ class GenRepository {
     async update(entity) {
         const collection = getConnection().collection(this.entityClass.collection);
         const id = entity._id;
+        console.log(id);
         delete entity._id;
-        return await collection.updateOne({_id: ObjectID(id)}, {$set: entity});
+        return await collection.updateOne({_id:new ObjectId(id)}, {$set: entity});
     }
 
     async delete(id){
         const collection = getConnection().collection(this.entityClass.collection);
-        return await collection.deleteOne({_id: ObjectID(id)});
+        return await collection.deleteOne({_id:new ObjectId(id)});
     }
 
     createMatchOptions(filters, filterMode){
@@ -156,7 +157,7 @@ class GenRepository {
     async softDelete(id){
         const collection = this.getCollection();
         const deletedAt = new Date();
-        return await collection.updateOne({_id: ObjectID(id)}, {$set: {deletedAt}});
+        return await collection.updateOne({_id:new ObjectId(id)}, {$set: {deletedAt}});
     }
 }
 

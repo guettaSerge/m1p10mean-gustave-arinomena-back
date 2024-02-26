@@ -4,8 +4,8 @@ const {getServices,createServices,updateServices,deleteServices,getServicesByID}
 const createAuth = require('../middleware/auth');
 const createRouteCallback = require('../commons/functions/create-route-callback');
 router.route("/").get(createRouteCallback(getServices))
-router.route('/').post(createServices)
-router.route('/:id').get(getServicesByID)
-router.route('/:id').put(createAuth([3]),updateServices)
-router.route('/:id').delete(createAuth([3]),deleteServices)
+router.route('/').post(createRouteCallback(createServices))
+router.route('/:id').get(createRouteCallback(getServicesByID))
+router.route('/:id').put(createRouteCallback(updateServices))
+router.route('/:id').delete(createRouteCallback(deleteServices))
 module.exports=router;

@@ -15,9 +15,10 @@ module.exports = function createAuth(allowedRoles=[]){
                     }
                     req.user = decoded.user;
                     tmp_user=decoded.user;
+                    console.log(tmp_user);
                     const allowedRolesArr = [...allowedRoles];
                     if(allowedRolesArr.length ===0) return next(); //all roles allowed
-                    if(allowedRolesArr.includes(tmp_user.role)) return next();
+                    if(allowedRolesArr.includes(tmp_user.roleId)) return next();
                     throw new CustomError("Acces interdit",403);
                 });
                 

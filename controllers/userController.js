@@ -42,14 +42,8 @@ const loginUser = asyncHandler(async (req, res) =>{
     const user = await UserService.findUserByEmailAndPassword(req.body);
     if(!user) throw new CustomError('Email ou mot de passe invalide')
     //compare password a,d hashpassword 
-
         const accessToken= jwt.sign({
-            user:{
-                username: user.username,
-                email: user.email,
-                id: user._id,
-                role: user.role
-            },
+            user
         },
         process.env.ACCESS_TOKEN_SECRET,
         {expiresIn: process.env.ACCESS_TOOKEN_DURATION}
