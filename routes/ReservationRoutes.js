@@ -15,7 +15,7 @@ router.route('/assign/:id').post(createAuth([3]),createRouteCallback(assignerese
 //liste des reservations
 router.route('/mes-reservations/').get(createAuth([1,3]),createRouteCallback(liste_mes_reservations));
 //listes des reservations dont lequelles je suis assigné
-router.route("/mes-clients/").get(createAuth([2,3]),createRouteCallback(liste_mes_clients));
+router.route("/mes-utilisateurs/:role").get(createAuth([2,3]),createRouteCallback(liste_mes_clients));
 //listes des reservation 
 
 module.exports=router;

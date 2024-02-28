@@ -13,7 +13,7 @@ class Reservation {
         "comission": { type: 'float', validatorGetter: (paramPropertyName='comission')=> body(paramPropertyName).isFloat().withMessage("comission invalide")  },
         "status": { type: 'int',  validatorGetter: (paramPropertyName='status')=> body(paramPropertyName).isInt().withMessage("Statut invalide").toInt() },
         "daterdv": { 
-            type: 'date',
+            type: 'Date',
             required:[true,"la date de rendez-vous est obligatoire"], 
             validatorGetter: (paramPropertyName='daterdv')=> body(paramPropertyName).isISO8601().withMessage("Date d'enregistrement").toDate() },
     }

@@ -72,7 +72,7 @@ const updateServices = asyncHandler(async (req, res) =>{
 //@access public
 const deleteServices =  asyncHandler(async (req, res) =>{
   const service = await serviceService.findCoreServiceById(req.params.id);
-  await servicesRepository.delete(req.params.id);
+  await servicesRepository.softDelete(req.params.id);
   res.json({message: "Service retirée"});
 });
 

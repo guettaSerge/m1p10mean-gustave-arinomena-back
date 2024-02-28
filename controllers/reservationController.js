@@ -76,7 +76,10 @@ const generatereservations = asyncHandler(async (req, res) =>{
   //test du valeur de données
   if(!newReservation.service_id) throw new CustomError("vous devez choisir une service",401);
   if(!newReservation.daterdv) throw new CustomError("la date du rendez-vous est obligatoire",401);
-  
+  ///verification du date si elle est valide
+  let dtRdv=new Date(newReservation.daterdv);
+  if(isNaN(dtRdv.getTime())) throw new CustomError("La date de rendez-vous n'est pas valide",401);
+  newReservation.daterdv=dtRdv
   selectedservices= await serviceService.findCoreServiceById(newReservation.service_id);
   console.log(selectedservices);
   newReservation.client=req.user
@@ -101,7 +104,7 @@ const assignereservations = asyncHandler(async (req, res) =>{
   //test du valeur de données
   if(!newReservation.employee_id) throw new CustomError("vous devez assigner ceci à un employée",401);
   if(!newReservation.comission) throw new CustomError("la  comission est obligatoire",401);
-  if(newReservation.comission<0||newReservation.comission>100) throw new CustomError("la valeur de la commission n'est pas correcte",401);
+  if(newReservation.comission<0) throw new CustomError("la valeur de la commission n'est pas correcte",401);
   
   selected_emp= await userRepository.findById(newReservation.employee_id);
   newReservation.client=req.user
@@ -111,7 +114,7 @@ const assignereservations = asyncHandler(async (req, res) =>{
   //suppression des informations inutile dans la base de données
 
   await reservationsRepository.update(newReservation);
-  res.json({message: "nouveau reservation inséré avec succès"});
+  res.json({message: "reservation assigné à un employé avec succès"});
 });
 
 //insertion reservations

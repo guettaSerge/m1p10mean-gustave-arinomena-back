@@ -1,6 +1,7 @@
 const asyncHandler=require('express-async-handler')
 const User= require('../models/user.model');
 const UserService= require('../service/user.service');
+const StatsService=require('../service/stats.service');
 const bcrypt=require('bcrypt');
 const jwt = require('jsonwebtoken');
 const CustomError = require('../errors/custom-error');
@@ -56,7 +57,35 @@ const loginUser = asyncHandler(async (req, res) =>{
 //@route get /api/users/current
 //@access private
 const currentUser = asyncHandler(async (req, res) =>{
-    res.json(req.user);
+    result= await StatsService.findCaExpensesStats(new Date(2024, 2, 28),"year")
+    res.json(result);
 });
 
-module.exports = {registerUser,loginUser,currentUser};
+//@desc current user
+//@route get /api/users/mes-clients
+//@access private
+const liste_mes_clients = asyncHandler(async (req, res)=>{
+    const role=parseInt(req.params.role);
+    const filter = [{
+        column: 'roleId',
+        type: 'Number',
+        value:role,
+        comparator: '='
+    }];
+    result = await UserService.findByfilter(filter);
+    
+    return res.json(result);
+});
+
+//@desc ajout nouvel employee
+//@route get /api/users/mes-clients
+//@access private
+const new_employee = asyncHandler(async (req, res)=>{ 
+    newUser = await UserService.findById(req.params.id);
+    newUser.roleId=2;
+    userRepository.update(newUser);
+    res.json({message: "nouvel employée inséré avec succès"});
+});
+
+
+module.exports = {new_employee,liste_mes_clients,registerUser,loginUser,currentUser};

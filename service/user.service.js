@@ -18,6 +18,10 @@ module.exports = class UserService {
             throw new CustomError('Aucun Utilisateur correspondante')    
         return result.data[0];
     }
+    static async findByfilter(filter){    
+        const result = await  userRepository.find({filter}); 
+        return result;
+    }
     static async findByGmail(email){
         const filter = [{
             column: 'email',
