@@ -2,7 +2,7 @@
   "name": "m1p10mean-gustave-arinomena-back",
   "version": "1.0.0",
   "description": "c'est notre projet en M1 dans le cours web avancé",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
