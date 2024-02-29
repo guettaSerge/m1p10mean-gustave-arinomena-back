@@ -21,6 +21,9 @@ app.use(cors({
 //assign routes
 routes(app)
 const port =process.env.PORT||5000;
+
+app.use(express.static("m1p10mean-serge-arinomena/browser"));
+
 app.listen(port,()=>{
     console.log(`server: listening on ${port}`);
 });

@@ -9,7 +9,6 @@ const preferenceEmployeeRoutes=require("./routes/preferenceEmployeeRoutes");
 const preferenceServicesRoutes=require("./routes/preferenceServicesRoutes");
 const welcomeRoutes=require("./routes/welcomeRoutes");
 module.exports = function (app){
-    app.use("/",welcomeRoutes);
     app.use("/api/users", usersRoutes);
     app.use("/api/contacts",contactRoutes);
     app.use("/api/services",serviceRoutes);
