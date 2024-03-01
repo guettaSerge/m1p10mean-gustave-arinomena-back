@@ -27,22 +27,8 @@ const getServices = asyncHandler(async (req, res) =>{
 //@route Post /api/services/:id
 //@access public
 const getServicesByID = asyncHandler(async (req, res) =>{
-  try {
-    if (!ObjectId.isValid(req.params.id)) {
-      return res.status(400).send(`Aucun enregistrement avec l'identifiant donné : ${req.params.id}`);
-    }
-
-    const service = await Sercives.findById(req.params.id);
-
-    if (!service) {
-      return res.status(404).send(`Aucun service trouvé avec l'identifiant : ${req.params.id}`);
-    }
-
-    res.send(service);
-  } catch (err) {
-    console.error("Erreur lors de la récupération du service :", err);
-    res.status(500).send('Erreur interne du serveur');
-  }
+  const service = await serviceService.findCoreServiceById(req.params.id);
+  return  res.json(service);
 });
       
 //insertion Service
@@ -61,7 +47,7 @@ const createServices = asyncHandler(async (req, res) =>{
 const updateServices = asyncHandler(async (req, res) =>{
   const service = await serviceService.findCoreServiceById(req.params.id);
   const body = assign(Service, req.body, 'updateSchemaDto');
-   
+  body._id = req.params.id;
   await servicesRepository.update(body);
   res.json({message: "Service mis à jour"});
 });
@@ -72,7 +58,7 @@ const updateServices = asyncHandler(async (req, res) =>{
 //@access public
 const deleteServices =  asyncHandler(async (req, res) =>{
   const service = await serviceService.findCoreServiceById(req.params.id);
-  await servicesRepository.softDelete(req.params.id);
+  await servicesRepository.delete(req.params.id);
   res.json({message: "Service retirée"});
 });
 
